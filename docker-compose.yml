@@ -1,0 +1,21 @@
+# Levanta MySQL 8 para desarrollo local o en la EC2.
+# Uso:  export DB_PASSWORD='tu_clave'  &&  docker compose up -d
+# La clave NO se escribe aqui: se toma de la variable de entorno DB_PASSWORD.
+services:
+  mysql-usuarios:
+    image: mysql:8.0
+    container_name: sanmarcos-mysql-usuarios
+    restart: unless-stopped
+    environment:
+      MYSQL_ROOT_PASSWORD: ${DB_PASSWORD:?Define la variable DB_PASSWORD}
+      MYSQL_DATABASE: sanmarcos_usuarios
+      TZ: America/Santiago
+    ports:
+      # Solo accesible desde la misma EC2 (no se expone MySQL a internet)
+      - "127.0.0.1:3306:3306"
+    volumes:
+      # Volumen con nombre: los datos sobreviven aunque se borre el contenedor
+      - mysql_usuarios_data:/var/lib/mysql
+
+volumes:
+  mysql_usuarios_data:
