@@ -14,7 +14,7 @@
 
 ## Estado del trabajo (avance lunes 16 de noviembre)
 
-**Leyenda:** **Listo** = probado en Swagger/Postman y el dato queda guardado en MySQL · **En avance** = ruta y lógica creadas con commits, falta terminar o probar · **Pendiente** = aún no se empieza.
+**Leyenda:** **Listo** = probado en Swagger y el dato queda guardado en MySQL · **En avance** = ruta y lógica creadas con commits, falta terminar o probar · **Pendiente** = aún no se empieza.
 
 | Operación | Endpoint | Diseñado | Implementado | Probado | Estado |
 |---|---|:-:|:-:|:-:|---|
@@ -22,14 +22,37 @@
 | Inicio de sesión con JWT (error genérico si falla) | `POST /api/v1/auth/login` | ✅ | ✅ | ✅ | **Listo** |
 | Registro (rol `DUENO` asignado por el servidor) | `POST /api/v1/auth/registro` | ✅ | ✅ | ✅ | **Listo** |
 | Alta de usuario con rol (Administrador) | `POST /api/v1/usuarios` | ✅ | ✅ | ⬜ | En avance |
-| Listar usuarios (Administrador) | `GET /api/v1/usuarios` | ✅ | ✅ | ⬜ | En avance |
-| Ver usuario (el mismo o Administrador) | `GET /api/v1/usuarios/{id}`, `GET /api/v1/usuarios/yo` | ✅ | ✅ | ⬜ | En avance |
-| Modificar usuario (rol/estado solo Administrador) | `PUT /api/v1/usuarios/{id}` | ✅ | ✅ | ⬜ | En avance |
-| Eliminar = desactivar usuario (Administrador) | `DELETE /api/v1/usuarios/{id}` | ✅ | ✅ | ⬜ | En avance |
-| Rutas protegidas 401 / 403 | Filtro JWT + `SecurityConfig` | ✅ | ✅ | ⬜ | En avance |
+| Listar usuarios (Administrador) | `GET /api/v1/usuarios` | ✅ | ✅ | ✅ | **Listo** |
+| Ver usuario (el mismo o Administrador) | `GET /api/v1/usuarios/{id}`, `GET /api/v1/usuarios/yo` | ✅ | ✅ | ✅ | **Listo** |
+| Modificar usuario (rol/estado solo Administrador) | `PUT /api/v1/usuarios/{id}` | ✅ | ✅ | ✅ | **Listo** |
+| Eliminar = desactivar usuario (Administrador) | `DELETE /api/v1/usuarios/{id}` | ✅ | ✅ | ✅ | **Listo** |
+| Rutas protegidas 401 / 403 | Filtro JWT + `SecurityConfig` | ✅ | ✅ | ✅ | **Listo** |
 | Login y registro del frontend consumiendo la API | Repo frontend | ✅ | ⬜ | ⬜ | Pendiente (semana 15) |
 | Microservicio de catálogo de servicios | `/api/v1/servicios` | ⬜ | ⬜ | ⬜ | Pendiente (semana 16) |
 | Microservicio de citas (regla 409: horario ocupado) | `/api/v1/citas` | ⬜ | ⬜ | ⬜ | Pendiente (semana 16) |
+
+### Pruebas realizadas (16-11-2026, backend en EC2 + MySQL en Docker)
+
+| # | Prueba | Esperado | Obtenido |
+|---|---|:-:|:-:|
+| 1 | Registro de un usuario nuevo (queda con rol `DUENO`) | 201 | 201 ✅ |
+| 2 | Registro con correo repetido | 409 | 409 ✅ |
+| 3 | Registro con nombre, correo y clave inválidos (errores por campo) | 400 | 400 ✅ |
+| 4 | Login correcto (token con vigencia de 3600 s) | 200 | 200 ✅ |
+| 5 | Login con clave incorrecta / correo inexistente (mismo mensaje genérico) | 401 | 401 ✅ |
+| 6 | Listar usuarios como Administrador | 200 | 200 ✅ |
+| 7 | Listar usuarios como Dueño | 403 | 403 ✅ |
+| 8 | Listar usuarios sin token | 401 | 401 ✅ |
+| 9 | Token alterado | 401 | 401 ✅ |
+| 10 | Dueño consulta la cuenta de otro usuario cambiando el id en la URL | 403 | 403 ✅ |
+| 11 | Dueño modifica su propio nombre | 200 | 200 ✅ |
+| 12 | Dueño intenta cambiarse el rol a Administrador | 403 | 403 ✅ |
+| 13 | Administrador cambia el rol de un usuario | 200 | 200 ✅ |
+| 14 | Dueño intenta eliminar un usuario | 403 | 403 ✅ |
+| 15 | Administrador desactiva un usuario | 204 | 204 ✅ |
+| 16 | Administrador intenta desactivar su propia cuenta | 409 | 409 ✅ |
+| 17 | Login de un usuario desactivado | 401 | 401 ✅ |
+| 18 | Consultar un usuario inexistente | 404 | 404 ✅ |
 
 ---
 
@@ -123,7 +146,7 @@ sequenceDiagram
 | PUT | `/api/v1/usuarios/{id}` | El mismo usuario (nombre, correo, clave) o ADMINISTRADOR (además rol y activo) | 200, 400, 401, 403, 404, 409 |
 | DELETE | `/api/v1/usuarios/{id}` | ADMINISTRADOR (desactiva) | 204, 401, 403, 404, 409 |
 
-**Swagger:** `http://<IP-PUBLICA-EC2>:8081/swagger-ui.html` ← reemplazar por la dirección real.
+**Swagger:** `http://98.80.65.222:8081/swagger-ui.html` (EC2; requiere el puerto 8081 abierto en el grupo de seguridad).
 
 ---
 
