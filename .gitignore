@@ -1,0 +1,22 @@
+# Compilacion Maven
+target/
+**/target/
+
+# IDE
+.idea/
+*.iml
+.vscode/
+.classpath
+.project
+.settings/
+
+# Variables de entorno y secretos (nunca subir)
+.env
+.env.*
+*.pem
+application-local.properties
+
+# Sistema
+.DS_Store
+Thumbs.db
+*.log
