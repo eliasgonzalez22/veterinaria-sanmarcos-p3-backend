@@ -12,7 +12,7 @@
 
 ---
 
-## Estado del trabajo (avance lunes 16 de noviembre)
+## Estado del trabajo (actualizado el martes 17 de noviembre)
 
 **Leyenda:** **Listo** = probado en Swagger y el dato queda guardado en MySQL · **En avance** = ruta y lógica creadas con commits, falta terminar o probar · **Pendiente** = aún no se empieza.
 
@@ -21,13 +21,16 @@
 | Tabla de usuarios (MySQL, persistente, clave con hash BCrypt) | `usuarios`, `roles` | ✅ | ✅ | ✅ | **Listo** |
 | Inicio de sesión con JWT (error genérico si falla) | `POST /api/v1/auth/login` | ✅ | ✅ | ✅ | **Listo** |
 | Registro (rol `DUENO` asignado por el servidor) | `POST /api/v1/auth/registro` | ✅ | ✅ | ✅ | **Listo** |
-| Alta de usuario con rol (Administrador) | `POST /api/v1/usuarios` | ✅ | ✅ | ⬜ | En avance |
+| Alta de usuario con rol (Administrador) | `POST /api/v1/usuarios` | ✅ | ✅ | ✅ | **Listo** |
 | Listar usuarios (Administrador) | `GET /api/v1/usuarios` | ✅ | ✅ | ✅ | **Listo** |
 | Ver usuario (el mismo o Administrador) | `GET /api/v1/usuarios/{id}`, `GET /api/v1/usuarios/yo` | ✅ | ✅ | ✅ | **Listo** |
 | Modificar usuario (rol/estado solo Administrador) | `PUT /api/v1/usuarios/{id}` | ✅ | ✅ | ✅ | **Listo** |
 | Eliminar = desactivar usuario (Administrador) | `DELETE /api/v1/usuarios/{id}` | ✅ | ✅ | ✅ | **Listo** |
 | Rutas protegidas 401 / 403 | Filtro JWT + `SecurityConfig` | ✅ | ✅ | ✅ | **Listo** |
-| Login y registro del frontend consumiendo la API | Repo frontend | ✅ | ⬜ | ⬜ | Pendiente (semana 15) |
+| Login y registro del frontend consumiendo la API (carga, éxito y error) | Repo frontend · [PR #3](https://github.com/eliasgonzalez22/veterinaria-sanmarcos-p2/pull/3) | ✅ | ✅ | ✅ | **Listo** |
+| Sesión del frontend persistente al recargar y limpia al cerrar o vencer | Repo frontend (`sessionStorage`) | ✅ | ✅ | ✅ | **Listo** |
+| Rutas y menús del frontend restringidos por rol | Repo frontend (`RutaProtegida`) | ✅ | ✅ | ✅ | **Listo** |
+| Token con `iss` y `aud`, ruta `/auth/me` y límite de intentos de login (Guía 19) | `JwtService`, `AuthController` | ✅ | ⬜ | ⬜ | Pendiente |
 | Microservicio de catálogo de servicios | `/api/v1/servicios` | ⬜ | ⬜ | ⬜ | Pendiente (semana 16) |
 | Microservicio de citas (regla 409: horario ocupado) | `/api/v1/citas` | ⬜ | ⬜ | ⬜ | Pendiente (semana 16) |
 
@@ -53,6 +56,38 @@
 | 16 | Administrador intenta desactivar su propia cuenta | 409 | 409 ✅ |
 | 17 | Login de un usuario desactivado | 401 | 401 ✅ |
 | 18 | Consultar un usuario inexistente | 404 | 404 ✅ |
+
+### Pruebas del alta de usuarios por el Administrador (17-11-2026)
+
+| # | Prueba | Esperado | Obtenido |
+|---|---|:-:|:-:|
+| 19 | Administrador crea un usuario con rol `RECEPCIONISTA` | 201 | 201 ✅ |
+| 20 | Administrador crea un usuario con correo repetido | 409 | 409 ✅ |
+| 21 | Administrador crea un usuario con datos inválidos (errores por campo, incluido el rol vacío) | 400 | 400 ✅ |
+| 22 | Administrador crea un usuario con un rol inexistente (`SUPERUSUARIO`) | 404 | 404 ✅ |
+| 23 | Recepcionista intenta crear un usuario | 403 | 403 ✅ |
+| 24 | Crear usuario sin token | 401 | 401 ✅ |
+| 25 | El usuario creado inicia sesión y recibe su rol | 200 | 200 ✅ |
+| 26 | Administrador desactiva el usuario de prueba | 204 | 204 ✅ |
+
+### Pruebas de integración con el frontend React (17-11-2026, en el navegador)
+
+| # | Prueba | Esperado | Obtenido |
+|---|---|---|---|
+| 27 | Login del dueño desde el formulario de React | `POST /auth/login` 200 y redirige a Mis citas | ✅ |
+| 28 | Recargar la página con la sesión iniciada | La sesión se mantiene | ✅ |
+| 29 | Login con clave incorrecta | "Correo o contraseña incorrectos" en la página, sin `alert()` | ✅ |
+| 30 | Registro con un correo existente | "Ya existe una cuenta con ese correo" (409) | ✅ |
+| 31 | Entrar a `/admin/usuarios` sin sesión, luego ingresar como Administrador | Va al login y vuelve a `/admin/usuarios` | ✅ |
+| 32 | Lista de usuarios como Administrador | `GET /usuarios` con `Authorization: Bearer`, estado "Cargando..." y luego la tabla desde MySQL | ✅ |
+| 33 | Cerrar sesión | Se borra el token de `sessionStorage` | ✅ |
+| 34 | Recepcionista entra a `/admin/usuarios` | "No tienes permiso para ver esta página" | ✅ |
+| 35 | Dueño entra a `/admin/usuarios` | "No tienes permiso para ver esta página" | ✅ |
+| 36 | Backend sin respuesta | "No fue posible contactar la API..." | ✅ |
+
+Pruebas unitarias del frontend: `npm run test:run`, 54 pruebas en verde (13 archivos), con mocks de Axios.
+
+Usuarios de prueba que quedaron en la base de datos (desactivados): `prueba.avance@sanmarcos.cl` y `alta.admin@sanmarcos.cl`.
 
 ---
 
