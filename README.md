@@ -233,6 +233,30 @@ Clave: el valor de `SEED_CLAVE`. Son datos de demostración, no cuentas reales.
 
 ---
 
+## Seguridad: decisiones y pendientes
+
+### Contraseñas
+- **Algoritmo:** BCrypt, con `BCryptPasswordEncoder` de Spring Security y factor de costo 10 (el valor por defecto). Cada hash lleva una sal aleatoria, así que dos usuarios con la misma clave tienen hashes distintos, y el costo hace lento un ataque de fuerza bruta.
+- **Por qué es adecuado:** OWASP prefiere Argon2id, pero acepta bcrypt con un factor de trabajo de 10 o más y un límite de 72 bytes por contraseña. Por eso el DTO limita la clave a 72 caracteres. BCrypt viene incluido en Spring Security, sin dependencias extra.
+- La clave nunca se devuelve en la API ni se escribe en los registros (`UsuarioResponse` no tiene el campo).
+
+### Token y sesión
+- **JWT HS256** firmado con `JWT_SECRET` (variable de entorno, mínimo 32 caracteres, fuera del repositorio). Lleva `sub` (correo), `id`, `rol`, `nombre`, `iat` y `exp`.
+- **Vigencia de 60 minutos:** cubre una jornada de atención en la recepción sin pedir login a cada rato, y limita el tiempo de uso de un token robado. Sin token de renovación: al vencer, se vuelve a iniciar sesión.
+- **Verificación en cada solicitud:** `JwtAuthFilter` comprueba la firma y el vencimiento, y `SecurityConfig` más `UsuarioService` comprueban el rol y la propiedad del registro (401 o 403).
+- **Cerrar sesión o desactivar una cuenta:** el frontend borra el token. Una copia ya emitida sigue siendo válida hasta su `exp`, porque no hay lista de tokens revocados. Una cuenta desactivada no puede volver a iniciar sesión.
+
+### Pendientes conocidos (no implementados todavía)
+| Control | Estado | Plan |
+|---|---|---|
+| Claims `iss` y `aud` verificados en el token | Pendiente | Agregarlos en `JwtService.generarToken` y exigirlos en `validar`. |
+| Límite de intentos de login | Pendiente | Contador por correo e IP con bloqueo temporal tras 5 intentos fallidos. |
+| HTTPS | Pendiente | Hoy la demo corre por HTTP en la EC2. En producción iría detrás de un balanceador o proxy con certificado TLS. |
+| Revocación de tokens | Pendiente | Lista de tokens revocados o vigencia más corta con token de renovación. |
+| Usuarios de prueba | Solo demo | Se crean con la clave de `SEED_CLAVE`. En producción se usa `SEED_HABILITADO=false`. |
+
+Fuentes: [OWASP Password Storage Cheat Sheet](https://cheatsheetseries.owasp.org/cheatsheets/Password_Storage_Cheat_Sheet.html) · [OWASP REST Security Cheat Sheet](https://cheatsheetseries.owasp.org/cheatsheets/REST_Security_Cheat_Sheet.html) · [Spring Security: BCryptPasswordEncoder](https://docs.spring.io/spring-security/reference/features/authentication/password-storage.html)
+
 ## Despliegue en la EC2 (demo con IP pública)
 
 El script `despliegue/instalar-servicios.sh` deja todo como **servicios de systemd** que arrancan solos al encender la instancia:
