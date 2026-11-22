@@ -18,14 +18,8 @@ import org.springframework.transaction.annotation.Transactional;
 import java.util.List;
 import java.util.Locale;
 
-/**
- * Logica de negocio de usuarios (CRUD).
- * Las reglas de permisos se comprueban AQUI, en el servidor:
- * ocultar un boton en React no basta como seguridad.
- */
 @Service
 public class UsuarioService {
-
     private final UsuarioRepository usuarioRepository;
     private final RolRepository rolRepository;
     private final PasswordEncoder passwordEncoder;
@@ -41,9 +35,6 @@ public class UsuarioService {
         return email == null ? null : email.trim().toLowerCase(Locale.ROOT);
     }
 
-    // ---------------- CREAR ----------------
-
-    /** Usado por el registro publico (rol DUENO) y por el alta del administrador. */
     @Transactional
     public Usuario crearUsuario(String nombre, String email, String clave, String nombreRol) {
         String correo = normalizarEmail(email);
@@ -53,7 +44,7 @@ public class UsuarioService {
         Usuario u = new Usuario();
         u.setNombre(nombre.trim());
         u.setEmail(correo);
-        u.setClaveHash(passwordEncoder.encode(clave)); // se guarda solo el hash
+        u.setClaveHash(passwordEncoder.encode(clave));
         u.setRol(buscarRol(nombreRol));
         u.setActivo(true);
         return usuarioRepository.save(u);
@@ -63,9 +54,6 @@ public class UsuarioService {
     public UsuarioResponse crear(UsuarioCrearRequest req) {
         return UsuarioResponse.desde(crearUsuario(req.nombre(), req.email(), req.clave(), req.rol()));
     }
-
-    // ---------------- LISTAR / OBTENER ----------------
-    // Mejora futura: paginacion y filtro por rol/activo.
 
     @Transactional(readOnly = true)
     public List<UsuarioResponse> listar() {
@@ -77,9 +65,6 @@ public class UsuarioService {
         verificarMismoUsuarioOAdmin(id, actor);
         return UsuarioResponse.desde(buscar(id));
     }
-
-    // ---------------- MODIFICAR ----------------
-    // Solo cambia los campos que vienen (null = sin cambio).
 
     @Transactional
     public UsuarioResponse actualizar(Long id, UsuarioActualizarRequest req, UsuarioAutenticado actor) {
@@ -99,7 +84,6 @@ public class UsuarioService {
         if (req.clave() != null) {
             u.setClaveHash(passwordEncoder.encode(req.clave()));
         }
-        // Solo el Administrador puede cambiar rol o estado
         if (req.rol() != null || req.activo() != null) {
             if (!actor.esAdministrador()) {
                 throw new AccessDeniedException("Solo el Administrador puede cambiar el rol o el estado");
@@ -114,9 +98,6 @@ public class UsuarioService {
         return UsuarioResponse.desde(usuarioRepository.save(u));
     }
 
-    // ---------------- ELIMINAR (desactivar) ----------------
-    // Borrado logico (activo = false). Se reactiva con PUT { activo: true }.
-
     @Transactional
     public void desactivar(Long id, UsuarioAutenticado actor) {
         if (actor.id().equals(id)) {
@@ -127,12 +108,6 @@ public class UsuarioService {
         usuarioRepository.save(u);
     }
 
-    // ---------------- Apoyo ----------------
-
-    /**
-     * Evita que un usuario consulte o modifique la cuenta de otro
-     * cambiando el id en la URL (/api/v1/usuarios/5 -> /api/v1/usuarios/6).
-     */
     private void verificarMismoUsuarioOAdmin(Long id, UsuarioAutenticado actor) {
         if (!actor.esAdministrador() && !actor.id().equals(id)) {
             throw new AccessDeniedException("No puedes acceder a la cuenta de otro usuario");

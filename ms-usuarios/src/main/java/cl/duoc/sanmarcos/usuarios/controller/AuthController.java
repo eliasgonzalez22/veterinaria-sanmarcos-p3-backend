@@ -16,14 +16,10 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-/**
- * Rutas publicas (no requieren token).
- */
 @RestController
 @RequestMapping("/api/v1/auth")
 @Tag(name = "Autenticacion", description = "Registro e inicio de sesion (publicas)")
 public class AuthController {
-
     private final AuthService authService;
 
     public AuthController(AuthService authService) {

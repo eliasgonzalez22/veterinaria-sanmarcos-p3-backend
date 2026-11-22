@@ -25,17 +25,12 @@ import org.springframework.web.bind.annotation.RestController;
 
 import java.util.List;
 
-/**
- * CRUD de usuarios. Todas las rutas requieren JWT.
- * Permisos: ver SecurityConfig (por ruta) y UsuarioService (dueno del recurso).
- */
 @RestController
 @RequestMapping("/api/v1/usuarios")
 @Tag(name = "Usuarios", description = "CRUD de usuarios y roles (requiere JWT)")
 @SecurityRequirement(name = OpenApiConfig.ESQUEMA_JWT)
 @ApiResponse(responseCode = "401", description = "Sin token, token alterado o vencido")
 public class UsuarioController {
-
     private final UsuarioService usuarioService;
 
     public UsuarioController(UsuarioService usuarioService) {

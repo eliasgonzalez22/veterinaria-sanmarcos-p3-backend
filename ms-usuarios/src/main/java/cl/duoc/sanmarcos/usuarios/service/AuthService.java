@@ -13,12 +13,8 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-/**
- * Logica de inicio de sesion y registro publico.
- */
 @Service
 public class AuthService {
-
     private final UsuarioRepository usuarioRepository;
     private final UsuarioService usuarioService;
     private final PasswordEncoder passwordEncoder;
@@ -32,12 +28,6 @@ public class AuthService {
         this.jwtService = jwtService;
     }
 
-    /**
-     * 1. Busca el usuario por correo en la tabla usuarios.
-     * 2. Compara la clave escrita con el hash BCrypt guardado (matches).
-     * 3. Si todo calza y la cuenta esta activa, emite el JWT.
-     * Cualquier falla responde el MISMO error generico (401).
-     */
     @Transactional(readOnly = true)
     public LoginResponse login(LoginRequest req) {
         String email = UsuarioService.normalizarEmail(req.email());
@@ -52,9 +42,6 @@ public class AuthService {
         return new LoginResponse(token, "Bearer", jwtService.getExpiracionSegundos(), UsuarioResponse.desde(usuario));
     }
 
-    /**
-     * Registro publico: el rol NO viene del cliente, lo asigna el servidor (DUENO).
-     */
     @Transactional
     public UsuarioResponse registrar(RegistroRequest req) {
         Usuario nuevo = usuarioService.crearUsuario(req.nombre(), req.email(), req.clave(), RolNombre.DUENO.name());
