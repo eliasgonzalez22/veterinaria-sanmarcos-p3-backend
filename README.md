@@ -233,6 +233,29 @@ Clave: el valor de `SEED_CLAVE`. Son datos de demostración, no cuentas reales.
 
 ---
 
+## Despliegue en la EC2 (demo con IP pública)
+
+El script `despliegue/instalar-servicios.sh` deja todo como **servicios de systemd** que arrancan solos al encender la instancia:
+
+| Servicio | Qué corre | Puerto |
+|---|---|---|
+| `docker` + contenedor `sanmarcos-mysql-usuarios` | MySQL 8 con volumen persistente | 3306 (solo dentro de la EC2) |
+| `vsm-backend` | `java -jar ms-usuarios-0.1.0.jar` | 8081 |
+| `vsm-frontend` | `vite preview` con el frontend compilado | 5173 |
+
+```bash
+# Una sola vez (compila backend y frontend, y crea los servicios)
+bash ~/veterinaria-sanmarcos-p3-backend/despliegue/instalar-servicios.sh
+
+# Cada vez que se inicia el laboratorio: muestra el estado y las direcciones con la IP actual
+bash ~/veterinaria-sanmarcos-p3-backend/despliegue/ver-direcciones.sh
+```
+
+- **Independiente de la IP:** el frontend llama a la API con la ruta relativa `/api/v1` y `vite preview` la reenvía al backend de la misma instancia (proxy en `vite.config.js` del frontend). Así la compilación sirve aunque la IP pública cambie al reiniciar el laboratorio.
+- **Secretos:** `DB_PASSWORD` y `JWT_SECRET` se leen de `/etc/veterinaria-sanmarcos.env` (permisos 600), generado desde `~/sanmarcos-env.sh`. No están en el repositorio.
+- **Grupo de seguridad:** TCP 5173 (frontend) y 8081 (Swagger) abiertos; 3306 cerrado.
+- **Revisar errores:** `sudo journalctl -u vsm-backend -n 50` o `sudo journalctl -u vsm-frontend -n 50`.
+
 ## Estructura
 
 ```
