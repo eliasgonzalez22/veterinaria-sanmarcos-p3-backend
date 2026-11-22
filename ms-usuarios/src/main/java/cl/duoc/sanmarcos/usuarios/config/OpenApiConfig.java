@@ -7,13 +7,8 @@ import io.swagger.v3.oas.models.security.SecurityScheme;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
-/**
- * Configuracion de Swagger. Agrega el boton "Authorize" para pegar el JWT
- * y probar las rutas protegidas desde /swagger-ui.html.
- */
 @Configuration
 public class OpenApiConfig {
-
     public static final String ESQUEMA_JWT = "bearerAuth";
 
     @Bean

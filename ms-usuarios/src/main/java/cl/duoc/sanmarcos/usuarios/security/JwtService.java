@@ -13,14 +13,8 @@ import javax.crypto.SecretKey;
 import java.nio.charset.StandardCharsets;
 import java.util.Date;
 
-/**
- * Emite y verifica los JWT.
- * - Firma HMAC-SHA256 con una clave secreta que viene de la variable JWT_SECRET.
- * - El token lleva: sub (correo), id, rol, nombre, iat (emision) y exp (vencimiento).
- */
 @Service
 public class JwtService {
-
     private static final Logger log = LoggerFactory.getLogger(JwtService.class);
 
     private final SecretKey clave;
@@ -54,10 +48,6 @@ public class JwtService {
                 .compact();
     }
 
-    /**
-     * Verifica firma y vencimiento. Si el token fue alterado lanza
-     * SignatureException/MalformedJwtException; si vencio, ExpiredJwtException.
-     */
     public UsuarioAutenticado validar(String token) {
         Claims claims = Jwts.parser()
                 .verifyWith(clave)

@@ -23,22 +23,14 @@ import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 import java.util.Arrays;
 import java.util.List;
 
-/**
- * Reglas de seguridad del microservicio.
- * - Sin sesion en el servidor (STATELESS): cada peticion trae su JWT.
- * - Publicas: login, registro y Swagger. Todo lo demas exige token.
- * - Permisos por rol en las rutas de administracion de usuarios.
- */
 @Configuration
 @EnableWebSecurity
 public class SecurityConfig {
-
     @Value("${app.cors.origenes}")
     private String origenes;
 
     @Bean
     public PasswordEncoder passwordEncoder() {
-        // BCrypt agrega "sal" aleatoria: dos usuarios con la misma clave tienen hashes distintos.
         return new BCryptPasswordEncoder();
     }
 
@@ -46,7 +38,7 @@ public class SecurityConfig {
     public SecurityFilterChain filterChain(HttpSecurity http, JwtService jwtService,
                                            RespuestasSeguridad respuestas) throws Exception {
         http
-                .csrf(AbstractHttpConfigurer::disable) // API sin cookies de sesion: CSRF no aplica
+                .csrf(AbstractHttpConfigurer::disable)
                 .cors(Customizer.withDefaults())
                 .sessionManagement(s -> s.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .exceptionHandling(e -> e
@@ -57,11 +49,9 @@ public class SecurityConfig {
                         .requestMatchers("/api/v1/auth/**").permitAll()
                         .requestMatchers("/swagger-ui.html", "/swagger-ui/**", "/v3/api-docs/**").permitAll()
                         .requestMatchers("/error").permitAll()
-                        // Solo el Administrador lista, crea y desactiva usuarios
                         .requestMatchers(HttpMethod.GET, "/api/v1/usuarios").hasRole("ADMINISTRADOR")
                         .requestMatchers(HttpMethod.POST, "/api/v1/usuarios").hasRole("ADMINISTRADOR")
                         .requestMatchers(HttpMethod.DELETE, "/api/v1/usuarios/**").hasRole("ADMINISTRADOR")
-                        // Ver/modificar un usuario: autenticado (el servicio revisa que sea el mismo o admin)
                         .anyRequest().authenticated())
                 .addFilterBefore(new JwtAuthFilter(jwtService), UsernamePasswordAuthenticationFilter.class);
 

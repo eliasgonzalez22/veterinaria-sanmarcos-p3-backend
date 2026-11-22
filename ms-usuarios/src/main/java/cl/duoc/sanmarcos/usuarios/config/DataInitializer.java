@@ -11,14 +11,8 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.stereotype.Component;
 
-/**
- * Al iniciar: crea los 3 roles del caso si no existen y, si esta habilitado,
- * tres usuarios de prueba (uno por rol). Si ya existen no hace nada,
- * por eso los datos no se duplican al reiniciar.
- */
 @Component
 public class DataInitializer implements CommandLineRunner {
-
     private static final Logger log = LoggerFactory.getLogger(DataInitializer.class);
 
     private final RolRepository rolRepository;

@@ -11,14 +11,8 @@ import org.springframework.stereotype.Component;
 
 import java.io.IOException;
 
-/**
- * Respuestas JSON de seguridad:
- * - 401 cuando no hay token, esta alterado o vencio.
- * - 403 cuando el token es valido pero el rol no alcanza.
- */
 @Component
 public class RespuestasSeguridad {
-
     private final ObjectMapper mapper;
 
     public RespuestasSeguridad(ObjectMapper mapper) {
