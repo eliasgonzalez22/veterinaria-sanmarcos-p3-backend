@@ -65,7 +65,7 @@ public class UsuarioService {
     }
 
     // ---------------- LISTAR / OBTENER ----------------
-    // EN AVANCE: falta paginacion y filtro por rol/activo.
+    // Mejora futura: paginacion y filtro por rol/activo.
 
     @Transactional(readOnly = true)
     public List<UsuarioResponse> listar() {
@@ -79,7 +79,7 @@ public class UsuarioService {
     }
 
     // ---------------- MODIFICAR ----------------
-    // EN AVANCE: falta probar todos los casos en Swagger/Postman.
+    // Solo cambia los campos que vienen (null = sin cambio).
 
     @Transactional
     public UsuarioResponse actualizar(Long id, UsuarioActualizarRequest req, UsuarioAutenticado actor) {
@@ -115,7 +115,7 @@ public class UsuarioService {
     }
 
     // ---------------- ELIMINAR (desactivar) ----------------
-    // EN AVANCE: borrado logico. Falta decidir si se permite reactivar desde aqui.
+    // Borrado logico (activo = false). Se reactiva con PUT { activo: true }.
 
     @Transactional
     public void desactivar(Long id, UsuarioAutenticado actor) {
