@@ -16,13 +16,8 @@ import java.time.LocalDateTime;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
-/**
- * Convierte las excepciones en respuestas JSON con el codigo HTTP correcto:
- * 400 dato invalido, 401 credenciales, 403 sin permiso, 404 no existe, 409 conflicto.
- */
 @RestControllerAdvice
 public class GlobalExceptionHandler {
-
     @ExceptionHandler(MethodArgumentNotValidException.class)
     public ResponseEntity<ErrorResponse> validacion(MethodArgumentNotValidException ex, HttpServletRequest req) {
         Map<String, String> errores = new LinkedHashMap<>();

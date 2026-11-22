@@ -5,9 +5,6 @@ import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Size;
 
-/**
- * Alta de usuario que hace el Administrador (puede elegir el rol).
- */
 public record UsuarioCrearRequest(
         @NotBlank(message = "El nombre es obligatorio")
         @Size(min = 3, max = 80, message = "El nombre debe tener entre 3 y 80 caracteres")

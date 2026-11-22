@@ -5,10 +5,6 @@ import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Size;
 
-/**
- * Datos del registro publico. No trae rol: el servidor asigna DUENO.
- * Las mismas reglas que el formulario de React (RF-12 del ERS).
- */
 public record RegistroRequest(
         @NotBlank(message = "El nombre es obligatorio")
         @Size(min = 3, max = 80, message = "El nombre debe tener entre 3 y 80 caracteres")

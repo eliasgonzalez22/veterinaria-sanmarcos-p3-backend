@@ -4,9 +4,6 @@ import cl.duoc.sanmarcos.usuarios.model.Usuario;
 
 import java.time.LocalDateTime;
 
-/**
- * Lo que la API devuelve de un usuario. Nunca incluye clave_hash.
- */
 public record UsuarioResponse(
         Long id,
         String nombre,

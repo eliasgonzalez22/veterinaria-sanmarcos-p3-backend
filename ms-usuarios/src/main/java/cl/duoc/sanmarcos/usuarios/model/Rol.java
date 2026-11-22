@@ -7,14 +7,9 @@ import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.Table;
 
-/**
- * Tabla roles. Los roles del caso son ADMINISTRADOR, RECEPCIONISTA y DUENO.
- * Se guardan en su propia tabla (3FN): el usuario solo guarda rol_id.
- */
 @Entity
 @Table(name = "roles")
 public class Rol {
-
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;

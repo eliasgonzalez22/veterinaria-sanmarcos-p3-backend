@@ -14,14 +14,9 @@ import jakarta.persistence.Table;
 
 import java.time.LocalDateTime;
 
-/**
- * Tabla usuarios. La contrasena NUNCA se guarda en texto plano:
- * solo se guarda el hash BCrypt en la columna clave_hash.
- */
 @Entity
 @Table(name = "usuarios")
 public class Usuario {
-
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
@@ -39,7 +34,6 @@ public class Usuario {
     @JoinColumn(name = "rol_id", nullable = false)
     private Rol rol;
 
-    /** Eliminar = desactivar (borrado logico) para no perder el historial de citas. */
     @Column(nullable = false)
     private boolean activo = true;
 

@@ -1,9 +1,5 @@
 package cl.duoc.sanmarcos.usuarios.model;
 
-/**
- * Nombres de los roles del caso Veterinaria San Marcos.
- * Se usan en el codigo para no escribir los textos a mano.
- */
 public enum RolNombre {
     ADMINISTRADOR("Gestiona el sistema completo, usuarios y roles"),
     RECEPCIONISTA("Personal de la clinica: ve, confirma y reagenda citas"),
