@@ -53,6 +53,11 @@ public class GlobalExceptionHandler {
         return responder(HttpStatus.CONFLICT, ex.getMessage(), req);
     }
 
+    @ExceptionHandler(TooManyAttemptsException.class)
+    public ResponseEntity<ErrorResponse> demasiadosIntentos(TooManyAttemptsException ex, HttpServletRequest req) {
+        return responder(HttpStatus.TOO_MANY_REQUESTS, ex.getMessage(), req);
+    }
+
     @ExceptionHandler(NoResourceFoundException.class)
     public ResponseEntity<ErrorResponse> rutaInexistente(NoResourceFoundException ex, HttpServletRequest req) {
         return responder(HttpStatus.NOT_FOUND, "La ruta solicitada no existe", req);

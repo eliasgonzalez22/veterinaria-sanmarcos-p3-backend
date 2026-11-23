@@ -17,6 +17,9 @@ import java.util.Date;
 public class JwtService {
     private static final Logger log = LoggerFactory.getLogger(JwtService.class);
 
+    private static final String EMISOR = "sanmarcos-usuarios";
+    private static final String AUDIENCIA = "sanmarcos-app";
+
     private final SecretKey clave;
     private final long expiracionMs;
 
@@ -39,6 +42,8 @@ public class JwtService {
         Date ahora = new Date();
         return Jwts.builder()
                 .subject(usuario.getEmail())
+                .issuer(EMISOR)
+                .audience().add(AUDIENCIA).and()
                 .claim("id", usuario.getId())
                 .claim("rol", usuario.getRol().getNombre())
                 .claim("nombre", usuario.getNombre())
@@ -48,14 +53,24 @@ public class JwtService {
                 .compact();
     }
 
-    public UsuarioAutenticado validar(String token) {
-        Claims claims = Jwts.parser()
+    private Claims leer(String token) {
+        return Jwts.parser()
                 .verifyWith(clave)
+                .requireIssuer(EMISOR)
+                .requireAudience(AUDIENCIA)
                 .build()
                 .parseSignedClaims(token)
                 .getPayload();
+    }
+
+    public UsuarioAutenticado validar(String token) {
+        Claims claims = leer(token);
         Long id = ((Number) claims.get("id")).longValue();
         return new UsuarioAutenticado(id, claims.getSubject(), claims.get("rol", String.class));
+    }
+
+    public String emailDe(String token) {
+        return leer(token).getSubject();
     }
 
     public long getExpiracionSegundos() {
